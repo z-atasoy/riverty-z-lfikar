@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riverty Consumer Card: Interactive Roadmap</title>
+<style>
+  :root {
+    --bg:#F3F6F5; --card:#FFFFFF; --ink:#17302F; --muted:#5A6E6F; --line:#D3DEDC; --track:#E4ECEA;
+    --qw:#0E6F6A; --qw-s:#D4EBE8;
+    --mp:#2F5D9E; --mp-s:#DCE6F5;
+    --fi:#9A6B0E; --fi-s:#F4E6C6;
+    --ts:#B8452E; --ts-s:#F3DAD3;
+    --sel:#17302F;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#101A1A; --card:#172526; --ink:#E5EFEE; --muted:#9DB2B1; --line:#2B4040; --track:#223636;
+      --qw:#4DB9B0; --qw-s:#1F4543;
+      --mp:#7FA6E6; --mp-s:#22324D;
+      --fi:#E0B050; --fi-s:#4A3C1C;
+      --ts:#E7876F; --ts-s:#4A2A22;
+      --sel:#E5EFEE;
+    }
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--ink); line-height:1.45; font-size:15px; }
+  .wrap { max-width:1140px; margin:0 auto; padding:30px 22px 48px; }
+  h1 { font-size:27px; line-height:1.15; }
+  .sub { color:var(--muted); margin-top:6px; }
+  button { font:inherit; color:inherit; cursor:pointer; }
+  button:focus-visible, summary:focus-visible { outline:3px solid var(--mp); outline-offset:2px; }
+
+  details.anchors { background:var(--card); border:1px solid var(--line); border-radius:8px; margin:18px 0 14px; padding:12px 16px; }
+  details.anchors summary { font-weight:600; cursor:pointer; }
+  details.anchors dl { margin-top:10px; display:grid; grid-template-columns:150px 1fr; gap:8px 14px; font-size:14px; }
+  details.anchors dt { color:var(--muted); }
+
+  .toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--card); }
+  .seg button { border:0; background:transparent; padding:8px 16px; }
+  .seg button[aria-pressed="true"] { background:var(--sel); color:var(--bg); font-weight:600; }
+  .filters { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { border:1px solid var(--line); background:var(--card); border-radius:16px; padding:4px 12px; font-size:13px; }
+  .chip[aria-pressed="true"] { background:var(--sel); color:var(--bg); border-color:var(--sel); }
+
+  .layout { display:grid; grid-template-columns:1fr 340px; gap:18px; align-items:start; }
+  .lane { margin-bottom:20px; }
+  .lane h2 { font-size:16px; display:flex; gap:10px; align-items:baseline; margin-bottom:8px; }
+  .lane h2 small { font-weight:400; color:var(--muted); font-size:13px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:10px; }
+  .fcard { text-align:left; background:var(--card); border:1px solid var(--line); border-left-width:5px; border-radius:8px; padding:11px 13px; display:block; width:100%; }
+  .fcard:hover { border-color:var(--muted); }
+  .fcard[aria-pressed="true"] { outline:3px solid var(--sel); outline-offset:1px; }
+  .fcard .id { font-size:12px; color:var(--muted); font-weight:600; }
+  .fcard .nm { display:block; font-weight:600; margin:2px 0 8px; }
+  .fcard.Quick { border-left-color:var(--qw); } .fcard.Major { border-left-color:var(--mp); }
+  .fcard.Fill { border-left-color:var(--fi); } .fcard.Time { border-left-color:var(--ts); }
+  .fcard.cut .nm { text-decoration:line-through; text-decoration-thickness:1px; opacity:.8; }
+  .meta { display:flex; flex-wrap:wrap; gap:6px; font-size:12px; }
+  .pill { padding:1px 8px; border-radius:10px; background:var(--track); }
+  .q-Quick { background:var(--qw-s); color:var(--qw); font-weight:600; }
+  .q-Major { background:var(--mp-s); color:var(--mp); font-weight:600; }
+  .q-Fill { background:var(--fi-s); color:var(--fi); font-weight:600; }
+  .q-Time { background:var(--ts-s); color:var(--ts); font-weight:600; }
+  .dim { opacity:.25; }
+
+  /* matrix */
+  .matrix-wrap { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; }
+  .matrix { display:grid; grid-template-columns:34px repeat(5, 1fr); grid-auto-rows:minmax(74px, auto); gap:3px; }
+  .cell { border-radius:4px; padding:4px; display:flex; flex-wrap:wrap; gap:4px; align-content:center; justify-content:center; }
+  .cell.Quick { background:var(--qw-s); } .cell.Major { background:var(--mp-s); }
+  .cell.Fill { background:var(--fi-s); } .cell.Time { background:var(--ts-s); }
+  .axis { display:grid; place-items:center; font-size:13px; color:var(--muted); }
+  .dot { border:2px solid var(--ink); background:var(--card); border-radius:16px; padding:2px 9px; font-size:13px; font-weight:600; }
+  .dot[aria-pressed="true"] { background:var(--sel); color:var(--bg); }
+  .xlab { display:grid; grid-template-columns:34px repeat(5, 1fr); gap:3px; margin-top:4px; }
+  .legend { display:flex; flex-wrap:wrap; gap:12px; font-size:13px; margin-top:12px; color:var(--muted); }
+  .legend i { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+
+  /* detail */
+  aside { position:sticky; top:16px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:18px; min-height:260px; }
+  aside .empty { color:var(--muted); }
+  aside h3 { font-size:19px; line-height:1.2; margin:4px 0 10px; }
+  .score { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  .score div { font-size:13px; color:var(--muted); }
+  .scale { display:flex; gap:3px; margin-top:4px; }
+  .scale i { flex:1; height:10px; border-radius:2px; background:var(--track); }
+  .scale i.on { background:var(--ink); }
+  aside h4 { font-size:13px; color:var(--muted); margin:14px 0 4px; }
+  aside p { font-size:14px; }
+  .links button { border:1px solid var(--line); background:var(--bg); border-radius:14px; padding:2px 10px; margin:2px 4px 2px 0; font-size:13px; }
+  .warn { border-left:4px solid var(--ts); background:var(--ts-s); padding:8px 12px; border-radius:0 6px 6px 0; font-size:13.5px; margin-top:10px; }
+
+  details.open { background:var(--card); border:1px solid var(--line); border-radius:8px; margin-top:6px; padding:12px 16px; }
+  details.open summary { font-weight:600; cursor:pointer; }
+  details.open ol { margin:10px 0 0 20px; font-size:14px; }
+  details.open li { margin-bottom:6px; }
+
+  @media (max-width:880px) {
+    .layout { grid-template-columns:1fr; }
+    aside { position:static; order:-1; }
+    details.anchors dl { grid-template-columns:1fr; gap:2px; }
+    details.anchors dd { margin-bottom:8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Riverty Consumer Card: interactive roadmap</h1>
+<p class="sub">Germany · 3 back-end, 1 front-end, 1 QA, 1 UX designer · 2 sprints. Click any feature to see its score and rationale.</p>
+
+<details class="anchors">
+  <summary>Strategic anchors</summary>
+  <dl>
+    <dt>Persona</dt><dd>Nadine, 38, a frequent online shopper who juggles 3 or more payment methods a month. She wants one consistent way to pay, online and in store, with fewer decisions.</dd>
+    <dt>Primary metric</dt><dd>The card's share of an active cardholder's monthly payments. Pilot baseline 14%, target about 20%.</dd>
+    <dt>Moment of misery</dt><dd>Standing in a store or at a checkout, she has to remember which method works where, and later may not recall whether she paid with Klarna, PayPal or her bank. “I don't need another credit card. I need fewer payment decisions.”</dd>
+    <dt>Guardrail</dt><dd>Riverty checkout GMV at partner merchants among cardholders must not fall more than 5% against matched non-cardholders.</dd>
+  </dl>
+</details>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="View">
+    <button id="vRoad" aria-pressed="true">Roadmap</button>
+    <button id="vMat" aria-pressed="false">Value vs effort</button>
+  </div>
+  <div class="filters" id="filters" role="group" aria-label="Filter by quadrant"></div>
+</div>
+
+<div class="layout">
+  <main>
+    <div id="road"></div>
+    <div id="mat" hidden></div>
+  </main>
+  <aside id="detail" aria-live="polite"><p class="empty">Select a feature to see its value, effort, quadrant and rationale.</p></aside>
+</div>
+
+<details class="open">
+  <summary>Open points to resolve before sharing</summary>
+  <ol>
+    <li><b>C1 effort score:</b> the score is 1, but the rationale calls effort “mid-range” (provisioning lead times, Paymentology setup). The first-pass score was 3.</li>
+    <li><b>C4 changed from first pass:</b> it moved from Time Sinker to Major Project on the Flex reuse argument. Confirm Flex can support a post-purchase split and whether it needs its own regulatory approval.</li>
+    <li><b>Capacity:</b> one front-end engineer means C1 and C3 run in sequence, and C3 depends on C1.</li>
+    <li><b>Horizon:</b> two sprints may only cover C1 and C3, so C4 realistically starts after C1 launches.</li>
+    <li><b>Synthetic basis:</b> the 18% default, 63% activation and 39% survey figures are synthetic and need validating.</li>
+  </ol>
+</details>
+
+</div>
+
+<script>
+const F = [
+ {id:'C1', name:'Wallet-Ready Instant Card', v:5, e:1, q:'Quick Win', d:'Now',
+  why:`Nadine already pays through her phone wallet, so a card she can add on approval is the only way Riverty reaches her in-store moment of misery; effort is mid-range because of Apple/Google provisioning lead times and the new Paymentology setup.`,
+  warn:`Score says effort 1, but the rationale says mid-range. Align before sharing.`, dep:[]},
+ {id:'C2', name:'One-Screen Payment Overview', v:3, e:2, q:'Fill-In', d:'Later',
+  why:`It solves “which provider paid” only for card payments, so it does not move payment share and will not fix the Klarna or PayPal half of her tracking problem.`, dep:[]},
+ {id:'C3', name:'Default-Card Nudge', v:4, e:1, q:'Quick Win', d:'Now',
+  why:`Only 18% of cardholders make it their default, and default status is the closest lever to the 14% to 20% payment share target, but it does nothing without C1.`,
+  warn:`Depends on C1. It cannot ship before the wallet card exists.`, dep:['C1']},
+ {id:'C4', name:'“Split It Later” Button', v:4, e:3, q:'Major Project', d:'Next',
+  why:`Optional flexibility is wanted by some (a single interview, 39% in the survey), and Riverty already runs Flex as a post-purchase product that can be integrated. It can drive Flex volume while giving customers a good flexible option.`,
+  warn:`Moved up from Time Sinker in the first pass. Confirm Flex reuse and whether new regulatory approval is needed.`, dep:['C1']},
+ {id:'C5', name:'First-Purchase Activation Prompt', v:3, e:1, q:'Fill-In', d:'Later',
+  why:`It lifts activation (63% vs the model's 70%) and helps reach 500 cardholders, but the primary metric is measured among already-active users.`, dep:['C1']},
+ {id:'C6', name:'Partner Merchant Perks', v:3, e:4, q:'Time Sinker', d:'Cut',
+  why:`It protects the guardrail, not Nadine's friction, and needs per-merchant contracts and funding; revisit only if guardrail data shows leakage.`, dep:[]},
+ {id:'C7', name:'Cashback Rewards Programme', v:2, e:4, q:'Time Sinker', d:'Cut',
+  why:`It answers Daniel's need, not Nadine's, and 1% cashback on EUR 4,000 costs EUR 40, more than the entire EUR 12 of interchange.`, dep:[]},
+ {id:'C8', name:'Fixed Limit and Auto-Repay Credit', v:2, e:5, q:'Time Sinker', d:'Cut',
+  why:`Nadine said “I don't need another credit card”, and it needs full credit-policy and regulatory approval.`, dep:[]},
+ {id:'C9', name:'Apple Pay-Later Wallet Slot', v:2, e:5, q:'Time Sinker', d:'Cut',
+  why:`It is blocked by CCD2's written-form requirement, and C1 already delivers wallet presence without it.`, dep:['C1']},
+ {id:'C10', name:'Creator Card for TikTok', v:1, e:4, q:'Time Sinker', d:'Cut',
+  why:`It targets a different segment and a different problem than Nadine's, and it needs its own proposition approval.`, dep:[]}
+];
+const LANES = [
+ {k:'Now', t:'Now', s:'Build first'},
+ {k:'Next', t:'Next', s:'After Now lands'},
+ {k:'Later', t:'Later (backlog)', s:'Fill capacity if it appears'},
+ {k:'Cut', t:'Cut list', s:'Not for this horizon'}
+];
+const QS = ['Quick Win','Major Project','Fill-In','Time Sinker'];
+const key = q => q.split(/[ -]/)[0];
+const by = id => F.find(f => f.id === id);
+
+let sel = null, flt = null;
+
+function card(f){
+  const b = document.createElement('button');
+  b.className = 'fcard ' + key(f.q) + (f.d==='Cut' ? ' cut' : '');
+  b.setAttribute('aria-pressed', sel===f.id);
+  if (flt && flt !== f.q) b.classList.add('dim');
+  b.innerHTML = `<span class="id">${f.id}</span><span class="nm">${f.name}</span>
+    <span class="meta"><span class="pill">Value ${f.v}</span><span class="pill">Effort ${f.e}</span><span class="pill q-${key(f.q)}">${f.q}</span></span>`;
+  b.onclick = () => select(f.id);
+  return b;
+}
+
+function renderRoad(){
+  const r = document.getElementById('road'); r.innerHTML='';
+  LANES.forEach(l => {
+    const items = F.filter(f => f.d === l.k);
+    const s = document.createElement('section'); s.className='lane';
+    s.innerHTML = `<h2>${l.t}<small>${l.s} · ${items.length} ${items.length===1?'feature':'features'}</small></h2>`;
+    const c = document.createElement('div'); c.className='cards';
+    items.forEach(f => c.appendChild(card(f)));
+    s.appendChild(c); r.appendChild(s);
+  });
+}
+
+function renderMat(){
+  const m = document.getElementById('mat');
+  let h = '<div class="matrix-wrap"><div class="matrix">';
+  for (let v=5; v>=1; v--){
+    h += `<div class="axis">${v}</div>`;
+    for (let e=1; e<=5; e++){
+      const hi = v>=4, lo = e<=2;
+      const q = hi ? (lo?'Quick':'Major') : (lo?'Fill':'Time');
+      h += `<div class="cell ${q}" data-v="${v}" data-e="${e}"></div>`;
+    }
+  }
+  h += `</div><div class="xlab"><span></span>${[1,2,3,4,5].map(n=>`<div class="axis">${n}</div>`).join('')}</div>
+  <p class="legend" style="margin-top:6px">Vertical axis: value (5 = moves the primary metric). Horizontal axis: effort (5 = months of work).</p>
+  <div class="legend">
+    <span><i style="background:var(--qw-s)"></i>Quick Win</span><span><i style="background:var(--mp-s)"></i>Major Project</span>
+    <span><i style="background:var(--fi-s)"></i>Fill-In</span><span><i style="background:var(--ts-s)"></i>Time Sinker</span></div></div>`;
+  m.innerHTML = h;
+  F.forEach(f => {
+    const cell = m.querySelector(`.cell[data-v="${f.v}"][data-e="${f.e}"]`);
+    const b = document.createElement('button');
+    b.className = 'dot'; b.textContent = f.id; b.title = f.name;
+    b.setAttribute('aria-pressed', sel===f.id);
+    if (flt && flt !== f.q) b.classList.add('dim');
+    b.onclick = () => select(f.id);
+    cell.appendChild(b);
+  });
+}
+
+function renderDetail(){
+  const d = document.getElementById('detail');
+  if (!sel){ d.innerHTML = '<p class="empty">Select a feature to see its value, effort, quadrant and rationale.</p>'; return; }
+  const f = by(sel);
+  const scale = n => `<div class="scale" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div>`;
+  const dependents = F.filter(x => x.dep.includes(f.id)).map(x=>x.id);
+  const link = id => `<button data-go="${id}">${id} ${by(id).name}</button>`;
+  d.innerHTML = `
+    <span class="pill q-${key(f.q)}">${f.q}</span> <span class="pill">${f.d==='Cut'?'Cut list':f.d}</span>
+    <h3>${f.id} · ${f.name}</h3>
+    <div class="score"><div>Value ${f.v} of 5${scale(f.v)}</div><div>Effort ${f.e} of 5${scale(f.e)}</div></div>
+    <h4>Rationale</h4><p>${f.why}</p>
+    ${f.warn ? `<div class="warn">${f.warn}</div>` : ''}
+    ${f.dep.length ? `<h4>Depends on</h4><div class="links">${f.dep.map(link).join('')}</div>` : ''}
+    ${dependents.length ? `<h4>Unlocks</h4><div class="links">${dependents.map(link).join('')}</div>` : ''}`;
+  d.querySelectorAll('[data-go]').forEach(b => b.onclick = () => select(b.dataset.go));
+}
+
+function select(id){ sel = (sel===id) ? null : id; renderAll(); }
+function renderAll(){ renderRoad(); renderMat(); renderDetail(); }
+
+const fb = document.getElementById('filters');
+['All', ...QS].forEach(q => {
+  const b = document.createElement('button');
+  b.className='chip'; b.textContent=q;
+  b.setAttribute('aria-pressed', q==='All');
+  b.onclick = () => {
+    flt = q==='All' ? null : q;
+    fb.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x===b));
+    renderAll();
+  };
+  fb.appendChild(b);
+});
+
+const vR = document.getElementById('vRoad'), vM = document.getElementById('vMat');
+function view(m){
+  document.getElementById('road').hidden = m!=='road';
+  document.getElementById('mat').hidden = m!=='mat';
+  vR.setAttribute('aria-pressed', m==='road'); vM.setAttribute('aria-pressed', m==='mat');
+}
+vR.onclick = () => view('road'); vM.onclick = () => view('mat');
+
+renderAll();
+</script>
+</body>
+</html>
