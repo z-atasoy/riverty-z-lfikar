@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riverty Wallet-Ready Instant Card | Final Project</title>
+<!-- Saans and Antarctican Mono are not on Google Fonts. They are listed first and used if installed locally; Inter and JetBrains Mono load as fallbacks. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#07162C; --fg:#ffffff; --muted:#ffffff;
+    --orange:#fb923c; --cyan:#22d3ee; --teal:#34d399; --blue:#60a5fa; --violet:#a78bfa; --pink:#f472b6;
+    --eyebrow:#fdba74; --border:rgba(251,146,60,0.25);
+    --head:"Saans","Inter","Segoe UI",system-ui,sans-serif;
+    --body:"Saans","Inter","Segoe UI",system-ui,sans-serif;
+    --mono:"Antarctican Mono","JetBrains Mono","SF Mono",Consolas,monospace;
+    --fs:clamp(12px,1.02vw,16px); --fs-s:clamp(10.5px,.84vw,13px);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-snap-type:y mandatory; scroll-behavior:smooth; background:var(--bg); }
+  body { font-family:var(--body); font-weight:400; color:var(--fg); background:var(--bg); font-size:var(--fs); line-height:1.4; }
+  a { color:inherit; }
+
+  #progress { position:fixed; top:0; left:0; height:4px; width:0; background:linear-gradient(90deg,var(--orange),var(--pink)); z-index:50; }
+  #dots { position:fixed; right:18px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:12px; z-index:50; }
+  #dots button { width:11px; height:11px; border-radius:50%; border:1.5px solid rgba(255,255,255,.55); background:transparent; cursor:pointer; padding:0; }
+  #dots button.on { background:var(--orange); border-color:var(--orange); transform:scale(1.25); }
+  #dots button:focus-visible { outline:2px solid var(--cyan); outline-offset:3px; }
+
+  section { min-height:100vh; scroll-snap-align:start; padding:clamp(26px,5vh,54px) clamp(28px,6.5vw,100px) clamp(26px,5vh,54px) clamp(28px,5vw,80px); display:flex; flex-direction:column; justify-content:center; gap:clamp(10px,1.7vh,18px); position:relative; }
+  .eyebrow { font-family:var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--eyebrow); font-size:var(--fs-s); font-weight:500; }
+  h1 { font-weight:900; font-size:clamp(34px,5.4vw,78px); line-height:1.02; letter-spacing:-.02em; }
+  h2 { font-weight:800; font-size:clamp(24px,3vw,44px); line-height:1.08; letter-spacing:-.01em; }
+  h3 { font-weight:700; font-size:clamp(13px,1.15vw,18px); }
+  .lbl { font-family:var(--mono); font-size:var(--fs-s); text-transform:uppercase; letter-spacing:.1em; color:var(--eyebrow); margin-bottom:5px; font-weight:500; }
+  .small { font-size:var(--fs-s); opacity:.82; }
+  .mono { font-family:var(--mono); }
+  .ph { border-bottom:1.5px dashed var(--orange); color:var(--eyebrow); }
+
+  .card { background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:15px; padding:clamp(10px,1.5vh,16px) clamp(12px,1.3vw,20px); }
+  .hero { background:linear-gradient(135deg,rgba(251,146,60,.2),rgba(96,165,250,.08)); box-shadow:0 14px 40px rgba(0,0,0,.4); }
+  .callout { border-left:5px solid var(--orange); background:linear-gradient(135deg,rgba(251,146,60,.16),rgba(167,139,250,.07)); border-radius:14px; padding:clamp(12px,1.8vh,20px) clamp(14px,1.5vw,24px); box-shadow:0 14px 40px rgba(0,0,0,.4); }
+  .callout.bad { border-left-color:var(--pink); background:linear-gradient(135deg,rgba(244,114,182,.16),rgba(251,146,60,.06)); }
+  .grid { display:grid; gap:clamp(8px,1.2vw,16px); }
+  .g2 { grid-template-columns:1fr 1fr; } .g3 { grid-template-columns:repeat(3,1fr); } .g4 { grid-template-columns:repeat(4,1fr); }
+  .g-61 { grid-template-columns:1.25fr 1fr; }
+  .pills { display:flex; flex-wrap:wrap; gap:7px; }
+  .pill { font-family:var(--mono); font-size:var(--fs-s); border:1px solid; border-radius:999px; padding:3px 11px; white-space:nowrap; }
+  .p-or { color:var(--orange); border-color:var(--orange); background:rgba(251,146,60,.1); }
+  .p-cy { color:var(--cyan); border-color:var(--cyan); background:rgba(34,211,238,.08); }
+  .p-te { color:var(--teal); border-color:var(--teal); background:rgba(52,211,153,.08); }
+  .p-bl { color:var(--blue); border-color:var(--blue); background:rgba(96,165,250,.08); }
+  .p-vi { color:var(--violet); border-color:var(--violet); background:rgba(167,139,250,.08); }
+  .p-pk { color:var(--pink); border-color:var(--pink); background:rgba(244,114,182,.1); }
+  .stat b { display:block; font-weight:900; font-size:clamp(20px,2.4vw,36px); line-height:1.05; color:var(--orange); }
+  .stat span { font-size:var(--fs-s); opacity:.85; }
+  ul.tight { list-style:none; } ul.tight li { padding-left:14px; position:relative; margin-bottom:4px; }
+  ul.tight li::before { content:""; position:absolute; left:0; top:.55em; width:6px; height:6px; border-radius:50%; background:var(--orange); }
+  ol.steps { padding-left:20px; } ol.steps li { margin-bottom:4px; }
+  .btn { display:inline-block; text-decoration:none; font-weight:700; background:var(--orange); color:#07162C; padding:10px 20px; border-radius:999px; box-shadow:0 8px 24px rgba(251,146,60,.35); }
+  .btn:hover { filter:brightness(1.08); } .btn:focus-visible { outline:3px solid var(--cyan); outline-offset:3px; }
+  .btn.ghost { background:transparent; color:var(--fg); border:1.5px solid var(--orange); box-shadow:none; }
+  table { width:100%; border-collapse:collapse; font-size:var(--fs-s); }
+  th { font-family:var(--mono); font-weight:500; text-transform:uppercase; letter-spacing:.08em; font-size:clamp(9.5px,.75vw,12px); color:var(--eyebrow); text-align:left; padding:5px 8px; border-bottom:1px solid var(--border); }
+  td { padding:6px 8px; border-bottom:1px solid rgba(255,255,255,.1); vertical-align:top; }
+
+  /* cover */
+  #cover { background:radial-gradient(1000px 520px at 85% 15%, rgba(251,146,60,.22), transparent 60%), radial-gradient(800px 500px at 10% 95%, rgba(96,165,250,.16), transparent 60%), var(--bg); }
+  #cover .pitch { font-size:clamp(15px,1.7vw,26px); max-width:34ch; font-weight:600; }
+  #cover .meta { display:grid; grid-template-columns:repeat(3,auto); gap:6px 34px; justify-content:start; margin-top:8px; }
+
+  /* roadmap */
+  .col h3 { font-family:var(--mono); font-size:var(--fs-s); text-transform:uppercase; letter-spacing:.1em; margin-bottom:6px; font-weight:500; }
+  .feat { border:1px solid var(--border); background:rgba(255,255,255,.04); border-radius:10px; padding:6px 9px; margin-bottom:6px; }
+  .feat b { font-family:var(--mono); font-weight:500; color:var(--eyebrow); font-size:var(--fs-s); margin-right:5px; }
+  .feat small { display:block; opacity:.75; font-size:clamp(9.5px,.75vw,12px); font-family:var(--mono); }
+  .cut .feat { opacity:.6; }
+
+  /* journey */
+  .journey { position:relative; }
+  .journey::before { content:""; position:absolute; top:15px; left:6%; right:6%; height:3px; background:linear-gradient(90deg,var(--cyan),var(--orange)); border-radius:2px; }
+  .stage { position:relative; padding-top:0; }
+  .stage .n { width:32px; height:32px; border-radius:50%; background:var(--bg); border:2px solid var(--cyan); font-weight:800; display:grid; place-items:center; margin:0 auto 8px; position:relative; z-index:1; }
+  .stage.mom .n { border-color:var(--pink); background:var(--pink); color:#07162C; box-shadow:0 0 0 5px rgba(244,114,182,.25); }
+  .stage .card { height:calc(100% - 40px); }
+  .stage.mom .card { border-color:var(--pink); background:linear-gradient(135deg,rgba(244,114,182,.18),rgba(255,255,255,.04)); }
+
+  .rules .card b { display:block; font-family:var(--mono); text-transform:uppercase; letter-spacing:.1em; font-size:var(--fs-s); margin-bottom:3px; }
+  .thanks { align-items:flex-start; }
+
+  @media (max-width:900px) {
+    .g2,.g3,.g4,.g-61 { grid-template-columns:1fr; } #cover .meta { grid-template-columns:1fr; }
+    .journey::before { display:none; } #dots { display:none; }
+  }
+  @media print { html { scroll-snap-type:none; } section { min-height:auto; page-break-after:always; } #progress,#dots { display:none; } }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<nav id="dots" aria-label="Slide navigation"></nav>
+
+<!-- 1 COVER -->
+<section id="cover" data-title="Cover">
+  <div class="eyebrow">Product School · Product Management Certification · Final Project</div>
+  <h1>Riverty Wallet-Ready<br><span style="color:var(--orange)">Instant Card</span></h1>
+  <p class="pitch">One card in Nadine’s phone wallet the moment she’s approved, so she pays the same way online and in store.</p>
+  <div class="meta">
+    <div><div class="lbl">Name / cohort</div>Zülfikar Atasoy · Cohort 1</div>
+    <div><div class="lbl">Repo</div><a href="https://github.com/z-atasoy/riverty-z-lfikar" target="_blank" rel="noopener" style="color:var(--cyan)">github.com/z-atasoy/riverty-z-lfikar</a></div>
+    <div><div class="lbl">Prototype</div><a class="btn" href="https://claude.ai/artifact/V5UBgPZYhgUpzmAN5BX3Zd" target="_blank" rel="noopener">View prototype</a></div>
+  </div>
+  <p class="small" style="margin-top:6px">Riverty business-unit case · Germany · All research and quantitative data are synthetic and directional.</p>
+</section>
+
+<!-- 2 STRATEGY -->
+<section id="strategy" data-title="Strategy">
+  <div class="eyebrow">Slide 5 · Strategy</div>
+  <h2>A moderate threat that a capped test can answer</h2>
+  <div class="grid g-61">
+    <div class="grid" style="align-content:start">
+      <div class="card hero">
+        <div class="lbl">Problem hook</div>
+        <p style="font-size:clamp(14px,1.35vw,21px);font-weight:600">The user is currently forced to use whichever BNPL provider or payment card is available at checkout because Riverty is only available at selected merchants and is not her preferred payment option.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Value proposition</div>
+        <p>With the card, user can shop without the concern of Riverty being available in checkout for each merchant and start building some loyalty towards this option carrying it over to physical purchases as well.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">If Riverty does nothing for 12 months</div>
+        <p>Riverty keeps staying dependent on merchant relationships and acquisition to scale up and stays behind in competition for a consumer card.</p>
+      </div>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="callout">
+        <div class="lbl">Data-backed hypothesis</div>
+        <p style="font-size:clamp(12px,1.08vw,17px)">Based on Nadine’s “I need fewer payment decisions” and data showing that 78% of Riverty users use 3 or more payment methods while Riverty is chosen only 6% of the time when it competes at checkout, I believe that offering her the option to add her Riverty card to Apple Pay at approval, instead of after the physical card arrives, will make it her default way to pay. Measured by a <b style="color:var(--orange)">+4 percentage point change (14% → 18%)</b> in the card’s share of her monthly payments over days 61–90 after approval. I will protect Riverty checkout GMV at partner merchants (no more than 5% below control) and decide at the readout.</p>
+      </div>
+      <div class="grid g4">
+        <div class="card stat"><b>78%</b><span>use 3+ payment methods</span></div>
+        <div class="card stat"><b>6%</b><span>pick Riverty next to Klarna or PayPal (71% when it’s the only option)</span></div>
+        <div class="card stat"><b>62%</b><span>of their online BNPL purchases go elsewhere</span></div>
+        <div class="card stat"><b>14%</b><span>BaFin: BNPL users who lost track of open payments (27% in our survey)</span></div>
+      </div>
+      <div class="card">
+        <div class="lbl">Cold read of my own hook</div>
+        <ul class="tight small" style="opacity:1">
+          <li><b>Risk:</b> a moderate strategic threat, not a crisis. It justifies a capped test with a cannibalisation guardrail.</li>
+          <li><b>Misery:</b> systemic as behaviour, mild as pain. Abandonment is 17% vs 8% when the usual method is missing.</li>
+          <li><b>Value prop:</b> partly. Universal acceptance removes the “is Riverty listed?” obstacle; “more flexible” is generic.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="small">Nadine’s quote (UXR-11): “I don’t need another credit card. I need fewer payment decisions.”</p>
+</section>
+
+<!-- 3 RESEARCH -->
+<section id="research" data-title="Research">
+  <div class="eyebrow">Slide 6 · Research</div>
+  <h2>Her workaround is memory. Riverty loses by default, not by comparison.</h2>
+  <div class="grid g2">
+    <div class="card hero">
+      <div class="lbl">Persona · workaround today</div>
+      <p><b>Nadine, 38,</b> frequent online shopper who juggles three or more payment methods every month. Goal: one consistent way to pay that feels the same online and in a store, with fewer payment decisions.</p>
+      <div class="lbl" style="margin-top:8px">External tool</div>
+      <p>Relies on memory of which method works at which merchant.</p>
+      <div class="lbl" style="margin-top:8px">The process</div>
+      <ol class="steps"><li>Check what she will buy</li><li>Think which methods are available in which merchants</li><li>Find the merchants and method matching what she will buy</li></ol>
+      <div class="lbl" style="margin-top:8px">Core frustration</div>
+      <p>She cannot memorize or keep in mind each and every merchant and payment method combo, so she sometimes misses opportunities.</p>
+      <p class="small" style="margin-top:6px">Evidence (UXR-09): “having to remember which one works where”.</p>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="card">
+        <div class="lbl">Competitive landscape (from the case)</div>
+        <table>
+          <tr><td><span class="pill p-or">Klarna Card</span></td><td>Direct benchmark; own banking licence and scheme membership</td></tr>
+          <tr><td><span class="pill p-cy">PayPal</span></td><td>Cards plus Pay in 3 / Pay in 30; the brand most Riverty users already carry</td></tr>
+          <tr><td><span class="pill p-vi">Instalment card banks</span></td><td>Santander Zero, Advanzia, TF Bank already hold the interest pool</td></tr>
+          <tr><td><span class="pill p-te">Scalapay · FLOA · Alma</span></td><td>Take BNPL into stores, or pair instalments with their own card</td></tr>
+          <tr><td><span class="pill p-bl">Do nothing</span></td><td>Tap whatever the checkout offers, or use an existing card</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="lbl">Moment of misery</div>
+        <p style="font-weight:600">Standing in a store or at a checkout, she has to remember which method works where, and later may not recall whether she paid with Klarna, PayPal or her bank.</p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="lbl" style="margin-bottom:8px">Future-state journey map · the moment of misery is removed at stage 3</div>
+    <div class="grid g4 journey">
+      <div class="stage"><div class="n">1</div><div class="card"><h3>Set up</h3><p class="small" style="opacity:1">Add approved card to phone wallet in one tap → Riverty is ready before plastic arrives.</p><p class="small"><i>Sceptical of another card, but curious if it removes decisions.</i></p></div></div>
+      <div class="stage"><div class="n">2</div><div class="card"><h3>Online checkout</h3><p class="small" style="opacity:1">Pay with the card at any online shop → No reliance on Riverty being listed.</p><p class="small"><i>Relieved; the shop’s payment menu stops mattering.</i></p></div></div>
+      <div class="stage mom"><div class="n">3</div><div class="card"><h3>In store <span class="pill p-pk" style="margin-left:4px">moment of misery</span></h3><p class="small" style="opacity:1">Tap phone at the till → Same routine as online.</p><p class="small"><i>Confident; no mental check of what this store supports.</i></p></div></div>
+      <div class="stage"><div class="n">4</div><div class="card"><h3>After purchase</h3><p class="small" style="opacity:1">Review card purchases in one place → Fewer “which provider?” moments.</p><p class="small"><i>In control; Riverty becomes a card she trusts.</i></p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 BLUEPRINT -->
+<section id="blueprint" data-title="Blueprint">
+  <div class="eyebrow">Slide 7 · Blueprint</div>
+  <h2>Ruthless scope: two things now, one next, five cut</h2>
+  <div class="grid g4">
+    <div class="col"><h3 style="color:var(--orange)">Now</h3>
+      <div class="feat"><b>C1</b>Wallet-Ready Instant Card<small>Value 5 · Effort 1 · Quick Win</small></div>
+      <div class="feat"><b>C3</b>Default-Card Nudge<small>Value 4 · Effort 1 · Quick Win</small></div></div>
+    <div class="col"><h3 style="color:var(--cyan)">Next</h3>
+      <div class="feat"><b>C4</b>“Split It Later” Button<small>Value 4 · Effort 3 · Major Project</small></div></div>
+    <div class="col"><h3 style="color:var(--teal)">Later</h3>
+      <div class="feat"><b>C2</b>One-Screen Payment Overview<small>Value 3 · Effort 2 · Fill-In</small></div>
+      <div class="feat"><b>C5</b>First-Purchase Activation Prompt<small>Value 3 · Effort 1 · Fill-In</small></div></div>
+    <div class="col cut"><h3 style="color:var(--pink)">Cut</h3>
+      <div class="feat"><b>C6</b>Partner Merchant Perks</div>
+      <div class="feat"><b>C7</b>Cashback Rewards</div>
+      <div class="feat"><b>C8</b>Fixed Limit and Auto-Repay Credit</div>
+      <div class="feat"><b>C9</b>Apple Pay-Later Wallet Slot (CCD2)</div>
+      <div class="feat"><b>C10</b>Creator Card for TikTok</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="lbl">PRD highlights · C1 Wallet-Ready Instant Card</div>
+      <ul class="tight small" style="opacity:1">
+        <li><b>Vision:</b> every Riverty customer carries a Riverty card in her phone wallet the moment she’s approved.</li>
+        <li><b>Scope:</b> 10 Must-haves: 4 core, 4 enabling (SCA, authorisation and fraud rules, freeze, logging), 2 supporting. Apple Pay first; Google Pay is a Should (a Must if Android is above about 30%).</li>
+        <li><b>Three screens:</b> “You’re approved” → “Adding your card” → “Your card is ready”.</li>
+        <li><b>Made explicit:</b> success is share of monthly payments (14% → 18%), paired with a partner-merchant GMV guardrail. My synthetic worst case loses about EUR 11 per card a year.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="lbl">Overrides and what the prototype taught me</div>
+      <ul class="tight small" style="opacity:1">
+        <li><b>Override:</b> C4 moved from Time Sinker to Major Project (value 3 → 4). Riverty already runs Flex, so integration effort is lower.</li>
+        <li><b>Gap:</b> “Try again keeps progress” was undefined; I made it skip the identity step.</li>
+        <li><b>Gap:</b> the 3-tap target counted “done”, but success appears automatically, so the happy path is 2 taps.</li>
+        <li><b>Gap:</b> several Musts (real-time authorisation, fraud rules) can’t be prototyped.</li>
+      </ul>
+      <div style="margin-top:10px"><a class="btn" href="https://claude.ai/artifact/V5UBgPZYhgUpzmAN5BX3Zd" target="_blank" rel="noopener">View prototype</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 VALIDATION -->
+<section id="validation" data-title="Validation">
+  <div class="eyebrow">Slide 8 · Validation</div>
+  <h2>One change, one primary metric, a decision rule I can be held to</h2>
+  <div class="grid g3">
+    <div class="card hero" style="grid-column:span 1">
+      <div class="lbl">Control (A)</div>
+      <p class="small" style="opacity:1">“You’re approved” with the line “Your physical card is on its way. You can add it to Apple Pay once it arrives.” Virtual card live for online use; details behind biometrics; Freeze toggle. She can’t pay in a shop from her phone until the plastic arrives.</p>
+      <div class="lbl" style="margin-top:8px">Variant (B) · exactly one change</div>
+      <p class="small" style="opacity:1"><b>Add to Apple Pay is offered at approval</b>, instead of after the physical card arrives. “Pay with Riverty in any store, from your phone” → Adding your card → Your card is ready.</p>
+    </div>
+    <div class="card">
+      <div class="lbl">Primary metric</div>
+      <p style="font-weight:600">Card’s share of an approved user’s monthly payments (card payments ÷ all her payments in the month), days 61–90 after approval.</p>
+      <div class="grid g2" style="margin-top:8px">
+        <div class="stat"><b>14%</b><span>baseline (synthetic, 69 users)</span></div>
+        <div class="stat"><b>+4 pp</b><span>MDE (14% → 18%)</span></div>
+        <div class="stat"><b>1,318</b><span>evaluable per arm (about 2,900 approvals)</span></div>
+        <div class="stat"><b>α 0.05</b><span>two-sided · 80% power · 50/50</span></div>
+      </div>
+      <p class="small" style="margin-top:6px">Duration about 30 weeks at a 40% iPhone share (22 if all users are on iPhone).</p>
+    </div>
+    <div class="card">
+      <div class="lbl">Guardrails</div>
+      <ul class="tight small" style="opacity:1">
+        <li><b>Riverty checkout GMV</b> at partner merchants per cardholder, treatment vs control: no more than 5% below, over a rolling 28 days.</li>
+        <li><b>30+ day arrears:</b> 1.4% baseline, 2.0% ceiling.</li>
+        <li><b>Revenue per cardholder:</b> not below control.</li>
+      </ul>
+      <div class="lbl" style="margin-top:8px">Held constant</div>
+      <p class="small">KYC and approval, Mastercard and terms, SCA, fraud rules, freeze, the wallet-add flow itself (A reaches it later), no nudges or promotions, same app build.</p>
+    </div>
+  </div>
+  <div class="grid g4 rules">
+    <div class="card" style="border-color:var(--teal)"><b style="color:var(--teal)">Ship</b><span class="small" style="opacity:1">Lift ≥ +4 pp at p &lt; 0.05, the GMV guardrail passes, arrears ≤ 2.0%, revenue per cardholder ≥ control.</span></div>
+    <div class="card" style="border-color:var(--cyan)"><b style="color:var(--cyan)">Iterate</b><span class="small" style="opacity:1">Lift between +1.5 and +4 pp, or the guardrail is inconclusive: extend enrolment or rework.</span></div>
+    <div class="card" style="border-color:var(--pink)"><b style="color:var(--pink)">Kill</b><span class="small" style="opacity:1">Upper bound of the 95% CI below +2 pp at full sample, or arrears above 2.0%.</span></div>
+    <div class="card" style="border-color:var(--orange)"><b style="color:var(--orange)">Pause</b><span class="small" style="opacity:1">GMV more than 5% below control in 2 consecutive weekly reads (1,000+ users per arm): pause enrolment into B.</span></div>
+  </div>
+  <p class="small">The read date is fixed once the last enrolled user reaches day 90. No early stopping on the primary metric.</p>
+</section>
+
+<!-- 6 LAUNCH -->
+<section id="launch" data-title="Launch">
+  <div class="eyebrow">Slide 9 · Launch</div>
+  <h2>Engagement, not awareness: reach approved users where they already are</h2>
+  <div class="grid g2">
+    <div class="card hero">
+      <div class="lbl">Go-to-market</div>
+      <div class="pills" style="margin-bottom:8px">
+        <span class="pill p-or">Goal · Engagement</span>
+        <span class="pill p-cy">Tier · S in the experiment, M from rollout</span>
+      </div>
+      <p class="small" style="opacity:1"><b>Audience:</b> all newly approved Riverty card applicants in Germany on iPhone (about 340 a week at an assumed 40% iPhone share). Nadine is the design persona, not a targeting filter. Android and non-applicants are out.</p>
+      <div class="lbl" style="margin-top:8px">Channels (all owned)</div>
+      <div class="pills">
+        <span class="pill p-te">In-app approval flow + email + push, with deep link</span>
+        <span class="pill p-te">“Not now” state + post-readout reminder</span>
+        <span class="pill p-te">Help centre + Support, per-arm macros</span>
+      </div>
+      <p class="small" style="margin-top:8px">Earned media and paid acquisition are deferred until after the readout.</p>
+    </div>
+    <div class="card">
+      <div class="lbl">Success dashboard</div>
+      <table>
+        <tr><th>KPI</th><th>Baseline</th><th>Target</th><th>Window</th></tr>
+        <tr><td><b>Card share of monthly payments</b></td><td>14% (pilot)</td><td>≥ 18%</td><td>Days 61–90 after approval, B vs A</td></tr>
+        <tr><td>First card payment within 14 days</td><td>Control baseline (week 5)</td><td>B ≥ 5 pts above A</td><td>Week 10 read</td></tr>
+        <tr><td>In-store share of card payments</td><td>54% (pilot)</td><td>≥ 50%</td><td>Days 61–90</td></tr>
+        <tr><td>Not now rate (diagnostic)</td><td>Set at canary</td><td>Review copy above 40%</td><td>Weekly</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="callout bad">
+    <div class="lbl" style="color:var(--pink)">Bad signal to watch for</div>
+    <p>Payment share rises while Riverty checkout GMV per cardholder falls more than 5% below control: purchases are moving from a roughly 2.9% merchant fee to about 0.3% interchange. Also watch for wallet-add at target with flat payment share (the card sits in the wallet), 30+ day arrears above 2.0%, and provisioning success below 90%.</p>
+  </div>
+</section>
+
+<!-- 7 STORY -->
+<section id="story" data-title="Story">
+  <div class="eyebrow">Slide 10 · Story</div>
+  <h2>What pushed back, and what I’d do next</h2>
+  <div class="grid g2">
+    <div class="grid" style="align-content:start">
+      <div class="card">
+        <div class="lbl">Friction points</div>
+        <ul class="tight" style="font-size:var(--fs-s)">
+          <li><b>The hook overstated it.</b> “Forced” isn’t coercion; users are passive. A cold read downgraded it to a moderate threat.</li>
+          <li><b>The prototype exposed PRD gaps:</b> retry semantics, the 3-tap target, lockout scope and offline timing.</li>
+          <li><b>The experiment had traps:</b> measuring “active” users after the change would bias the metric, and the GMV guardrail is underpowered at 2,900 per arm.</li>
+          <li><b>The launch plan contradicted the test:</b> “identical copy in both arms” was impossible, and the timeline didn’t match the sample size.</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <div class="lbl">Aha moment</div>
+        <p style="font-weight:600">The metric and the guardrail decide what you build. A card can win usage while moving volume from a roughly 2.9% merchant fee to about 0.3% interchange. In my synthetic worst case that loses about EUR 11 per card a year.</p>
+      </div>
+    </div>
+    <div class="card hero">
+      <div class="lbl">Key takeaways · what I would do next</div>
+      <ol class="steps" style="font-size:var(--fs-s)">
+        <li>Confirm approval happens inside the app, and the real iPhone share. Every week number depends on them.</li>
+        <li>Decide on Google Pay: a Must if Android is above about 30% of the cohort.</li>
+        <li>Run the prototype gate, register the analysis plan, and check Apple entitlement lead times.</li>
+        <li>Have Finance restate the year-1 numbers: about 9,000 exposed users, not 31,238 cards.</li>
+        <li>Decide with the Head of Cards whether to enrol 2,900 or 4,900 per arm, which moves the readout by about 10 weeks.</li>
+        <li>After the readout: the “Not now” reminder and the default-card nudge (C3).</li>
+      </ol>
+      <p class="small" style="margin-top:8px">All quantitative data in this deck is synthetic and directional.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 THANK YOU -->
+<section id="thanks" data-title="Submit" class="thanks" style="background:radial-gradient(900px 500px at 80% 80%, rgba(251,146,60,.2), transparent 60%), var(--bg)">
+  <div class="eyebrow">Thank you</div>
+  <h1>Thank you.</h1>
+  <p class="pitch" style="font-size:clamp(15px,1.6vw,24px);max-width:36ch;font-weight:600">One card, one habit, one decision rule.</p>
+  <div class="grid g3" style="max-width:900px;width:100%">
+    <div class="card"><div class="lbl">Repo</div><a href="https://github.com/z-atasoy/riverty-z-lfikar" target="_blank" rel="noopener" style="color:var(--cyan);word-break:break-all">github.com/z-atasoy/riverty-z-lfikar</a></div>
+    <div class="card"><div class="lbl">Zülfikar Atasoy</div><span class="mono" style="color:var(--orange);font-weight:500">Cohort 1</span></div>
+    <div class="card"><div class="lbl">Prototype</div><a href="https://claude.ai/artifact/V5UBgPZYhgUpzmAN5BX3Zd" target="_blank" rel="noopener" style="color:var(--cyan)">Open the working flow</a></div>
+  </div>
+  <div class="pills"><span class="pill p-or" style="font-size:clamp(12px,1.1vw,16px);padding:8px 18px">Submit to the learning platform →</span></div>
+</section>
+
+<script>
+(function () {
+  var secs = Array.prototype.slice.call(document.querySelectorAll('section'));
+  var dots = document.getElementById('dots');
+  var bar = document.getElementById('progress');
+  var cur = 0;
+  secs.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.setAttribute('aria-label', 'Go to ' + s.getAttribute('data-title'));
+    b.title = s.getAttribute('data-title');
+    b.addEventListener('click', function () { go(i); });
+    dots.appendChild(b);
+  });
+  function go(i) {
+    i = Math.max(0, Math.min(secs.length - 1, i));
+    secs[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function update() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+    var best = 0, bestD = Infinity;
+    secs.forEach(function (s, i) {
+      var d = Math.abs(s.getBoundingClientRect().top);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    cur = best;
+    Array.prototype.forEach.call(dots.children, function (b, i) { b.classList.toggle('on', i === cur); });
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k === 'ArrowDown' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) { e.preventDefault(); go(cur + 1); }
+    else if (k === 'ArrowUp' || k === 'PageUp' || (k === ' ' && e.shiftKey)) { e.preventDefault(); go(cur - 1); }
+    else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(secs.length - 1); }
+    else if (k === 'Escape') { e.preventDefault(); go(0); }
+  });
+  update();
+})();
+</script>
+</body>
+</html>
