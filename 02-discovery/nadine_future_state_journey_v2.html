@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nadine's Future State Journey: Riverty Consumer Card</title>
+<style>
+  :root {
+    --paper: #F2F5F4; --ink: #17302F; --muted: #55696A; --river: #0E6F6A;
+    --river-soft: #D6E9E6; --pain: #B8452E; --line: #C3D2D0;
+    --head: "Trebuchet MS", "Segoe UI", sans-serif;
+    --body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body { font-family: var(--body); color: var(--ink); background: var(--paper); line-height: 1.4; font-size: 14px; max-width: 1280px; margin: 0 auto; padding: 28px 32px 24px; }
+
+  header { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: end; margin-bottom: 22px; }
+  h1 { font-family: var(--head); font-weight: 700; font-size: 32px; line-height: 1.1; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin-top: 8px; max-width: 58ch; }
+  .persona { border-left: 3px solid var(--river); padding-left: 14px; font-size: 13px; }
+  .persona b { font-family: var(--head); font-size: 15px; }
+  .persona p + p { margin-top: 4px; color: var(--muted); }
+
+  ol.stages { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
+  ol.stages::before { content: ""; position: absolute; top: 19px; left: 12.5%; right: 12.5%; height: 4px; background: var(--river); border-radius: 2px; }
+  ol.stages::after { content: "one consistent way to pay"; position: absolute; top: 0; right: 0; font-size: 12px; color: var(--river); font-family: var(--head); font-weight: 700; }
+  .stage { position: relative; padding: 0 14px; }
+  .node { width: 42px; height: 42px; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--head); font-weight: 700; font-size: 18px; display: grid; place-items: center; margin: 0 auto 14px; position: relative; z-index: 1; border: 4px solid var(--paper); box-shadow: 0 0 0 2px var(--river); }
+  .stage h2 { font-family: var(--head); font-weight: 700; font-size: 19px; line-height: 1.15; text-align: center; }
+  .stage .tag { text-align: center; color: var(--muted); font-size: 12.5px; margin: 3px 0 12px; }
+
+  .block { border-top: 1px solid var(--line); padding: 9px 0 10px; }
+  .block h3 { font-family: var(--head); font-size: 13px; color: var(--river); margin-bottom: 5px; }
+  .block.pain h3 { color: var(--pain); }
+  ul { list-style: none; }
+  li { margin-bottom: 6px; }
+  li:last-child { margin-bottom: 0; }
+  .arrow { color: var(--river); font-weight: 700; padding: 0 2px; }
+  .pain .arrow { color: var(--pain); }
+  .a { font-weight: 600; }
+  .state { font-style: italic; }
+  .ref { display: block; color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+
+  .adv { margin-top: 16px; background: var(--ink); color: var(--paper); border-radius: 6px; padding: 16px 20px 14px; }
+  .adv h2 { font-family: var(--head); font-size: 17px; margin-bottom: 4px; }
+  .adv p.lead { color: #B7CBC9; font-size: 12.5px; margin-bottom: 10px; }
+  .adv ol { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: c; }
+  .adv li { counter-increment: c; margin: 0; padding-left: 30px; position: relative; }
+  .adv li::before { content: counter(c); position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--river-soft); color: var(--ink); font-family: var(--head); font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+  .adv .arrow { color: #7FD0C8; }
+
+  footer { margin-top: 12px; font-size: 11.5px; color: var(--muted); }
+
+  @media (max-width: 960px) {
+    header { grid-template-columns: 1fr; }
+    ol.stages { grid-template-columns: 1fr; gap: 26px; }
+    ol.stages::before, ol.stages::after { display: none; }
+    .stage { padding: 0; }
+    .node { margin: 0 0 8px; }
+    .stage h2, .stage .tag { text-align: left; }
+    .adv ol { grid-template-columns: 1fr; }
+  }
+  @page { size: A4 landscape; margin: 9mm; }
+  @media print {
+    html, body { background: #fff; }
+    body { padding: 0; max-width: none; font-size: 10.5px; }
+    h1 { font-size: 24px; }
+    .stage h2 { font-size: 15px; }
+    .node { width: 34px; height: 34px; font-size: 15px; margin-bottom: 8px; }
+    ol.stages::before { top: 15px; }
+    .block { padding: 6px 0 7px; }
+    li { margin-bottom: 4px; }
+    .adv { padding: 10px 14px; margin-top: 10px; }
+    header { margin-bottom: 12px; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Nadine's future state: one consistent way to pay</h1>
+    <p class="sub">Strategy: one consistent way to pay that feels the same online and in a store, with fewer payment decisions.</p>
+  </div>
+  <div class="persona">
+    <p><b>Nadine, 38, frequent online shopper.</b> Uses three or more payment methods every month.</p>
+    <p>Value prop: shop without worrying whether Riverty is listed at checkout, and build loyalty that carries into physical purchases.</p>
+  </div>
+</header>
+
+<ol class="stages">
+  <li class="stage">
+    <div class="node">1</div>
+    <h2>Set up</h2>
+    <p class="tag">Card in her wallet at approval</p>
+    <div class="block">
+      <h3>User action</h3>
+      <ul>
+        <li><span class="a">Add approved card to phone wallet in one tap</span> <span class="arrow">→</span> Riverty is ready before plastic arrives.</li>
+        <li><span class="a">Skip activation steps</span> <span class="arrow">→</span> Card works the moment it’s added.</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h3>Internal state</h3>
+      <p class="state">Sceptical of another card, but curious if it removes decisions.</p>
+    </div>
+    <div class="block pain">
+      <h3>Pain point addressed</h3>
+      <ul><li><span class="a">Use the wallet she already has</span> <span class="arrow">→</span> no new app or habit.
+        <span class="ref">UXR-06, UXR-08, OBS-103</span></li></ul>
+    </div>
+  </li>
+
+  <li class="stage">
+    <div class="node">2</div>
+    <h2>Online checkout</h2>
+    <p class="tag">Same card, any shop</p>
+    <div class="block">
+      <h3>User action</h3>
+      <ul>
+        <li><span class="a">Pay with the card at any online shop</span> <span class="arrow">→</span> No reliance on Riverty being listed.</li>
+        <li><span class="a">Stop comparing checkout options</span> <span class="arrow">→</span> One decision replaces many.</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h3>Internal state</h3>
+      <p class="state">Relieved; the shop's payment menu stops mattering.</p>
+    </div>
+    <div class="block pain">
+      <h3>Pain point addressed</h3>
+      <ul><li><span class="a">Use the same card everywhere</span> <span class="arrow">→</span> availability stops deciding.
+        <span class="ref">UXR-01, OBS-105</span></li></ul>
+    </div>
+  </li>
+
+  <li class="stage">
+    <div class="node">3</div>
+    <h2>In store</h2>
+    <p class="tag">Same tap, same routine</p>
+    <div class="block">
+      <h3>User action</h3>
+      <ul>
+        <li><span class="a">Tap phone at the till</span> <span class="arrow">→</span> Same routine as online.</li>
+        <li><span class="a">Skip remembering what works where</span> <span class="arrow">→</span> Acceptance wherever Mastercard is taken.</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h3>Internal state</h3>
+      <p class="state">Confident; no mental check of what this store supports.</p>
+    </div>
+    <div class="block pain">
+      <h3>Pain point addressed</h3>
+      <ul><li><span class="a">Close the online versus store gap</span> <span class="arrow">→</span> payment feels the same.
+        <span class="ref">UXR-04, UXR-09, OBS-107</span></li></ul>
+    </div>
+  </li>
+
+  <li class="stage">
+    <div class="node">4</div>
+    <h2>After purchase</h2>
+    <p class="tag">Clear record, flexibility on request</p>
+    <div class="block">
+      <h3>User action</h3>
+      <ul>
+        <li><span class="a">Review card purchases in one place</span> <span class="arrow">→</span> Fewer “which provider?” moments.</li>
+        <li><span class="a">Optionally split a larger purchase</span> <span class="arrow">→</span> Flexibility on her terms, never pushed.</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h3>Internal state</h3>
+      <p class="state">In control; Riverty becomes a card she trusts and reaches for.</p>
+    </div>
+    <div class="block pain">
+      <h3>Pain point addressed</h3>
+      <ul><li><span class="a">Keep one record of card spend</span> <span class="arrow">→</span> less forgetting what was paid.
+        <span class="ref">UXR-05, UXR-07, UXR-10</span></li></ul>
+    </div>
+  </li>
+</ol>
+
+<section class="adv">
+  <h2>Three advantages over today's manual workaround</h2>
+  <p class="lead">Workaround today: memory as the tracking system, plus a bank card as the universal fallback.</p>
+  <ol>
+    <li><span class="a">One consistent card replaces remembering what works where</span> <span class="arrow">→</span> Fewer decisions at every checkout and till.</li>
+    <li><span class="a">A card record replaces memory as the tracker</span> <span class="arrow">→</span> Fewer forgotten card payments.</li>
+    <li><span class="a">Acceptance plus optional flexibility replaces the plain bank-card fallback</span> <span class="arrow">→</span> Flexibility travels with her.</li>
+  </ol>
+</section>
+
+<footer>
+  Based on synthetic, directional research (UXR-01 to UXR-12, OBS-101 to OBS-108). Assumptions to validate: she replaces an existing card habit (7 of 8 participants say a new card must), the single record covers card spend only, and optional splitting is a later release resting on one interview (UXR-10).
+</footer>
+
+</body>
+</html>
