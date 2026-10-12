@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Riverty Wallet-Ready Instant Card: prototype</title>
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --bg:#F3F6F5; --card:#FFFFFF; --ink:#17302F; --muted:#5A6E6F; --line:#D3DEDC; --track:#E4ECEA;
+    --river:#0E6F6A; --warn:#B8452E; --ok:#1B7F4B; --sel:#17302F;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#101A1A; --card:#172526; --ink:#E5EFEE; --muted:#9DB2B1; --line:#2B4040; --track:#223636;
+      --river:#4DB9B0; --warn:#E7876F; --ok:#6CCB95; --sel:#E5EFEE;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#101A1A; --card:#172526; --ink:#E5EFEE; --muted:#9DB2B1; --line:#2B4040; --track:#223636;
+    --river:#4DB9B0; --warn:#E7876F; --ok:#6CCB95; --sel:#E5EFEE;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif; background: var(--bg); color: var(--ink); line-height: 1.45; font-size: 15px; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible { outline: 3px solid #2F7BD6; outline-offset: 2px; }
+  .page { max-width: 1080px; margin: 0 auto; padding: 24px 20px 40px; }
+  header h1 { font-size: 24px; line-height: 1.2; }
+  header p { color: var(--muted); margin-top: 4px; max-width: 70ch; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: 410px 1fr; gap: 28px; margin-top: 20px; align-items: start; }
+  .cap { color: var(--muted); font-size: 12.5px; margin-top: 8px; text-align: center; }
+
+  /* phone (fixed light colours: it is an app mock) */
+  .phone { width: 390px; max-width: 100%; height: 780px; border: 10px solid #0E1A1A; border-radius: 44px; background: #fff; color: #17302F; display: flex; flex-direction: column; overflow: hidden; position: relative; margin: 0 auto; }
+  .status { display: flex; justify-content: space-between; padding: 12px 26px 4px; font-size: 13px; font-weight: 600; }
+  .screen { flex: 1; overflow-y: auto; padding: 14px 22px 26px; display: flex; flex-direction: column; gap: 14px; }
+  .screen h2 { font-size: 25px; line-height: 1.15; }
+  .sub { color: #5A6E6F; font-size: 14.5px; margin-top: 4px; }
+  .err { color: #B8452E; font-size: 14px; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+
+  .cardart { position: relative; height: 200px; border-radius: 18px; padding: 18px 20px; color: #fff; background: linear-gradient(135deg, #0E4F4C 0%, #0E6F6A 60%, #3AA79F 100%); display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+  .cardart::after { content: ""; position: absolute; right: -40px; bottom: -70px; width: 220px; height: 220px; border-radius: 50%; border: 26px solid rgba(255,255,255,.12); }
+  .cardart .brand { font-weight: 700; font-size: 20px; letter-spacing: .02em; }
+  .cardart .num { font-size: 19px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+  .cardart .row { display: flex; justify-content: space-between; font-size: 12.5px; z-index: 1; }
+  .cardart.frozen { filter: grayscale(1) brightness(.85); }
+  .cardart .frozen-tag { position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,.9); color: #17302F; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; z-index: 1; }
+
+  .btn { border: 0; border-radius: 12px; padding: 14px 16px; font-weight: 600; width: 100%; font-size: 16px; }
+  .btn.apple { background: #000; color: #fff; }
+  .btn.primary { background: #0E6F6A; color: #fff; }
+  .btn.sec { background: #fff; color: #17302F; border: 1.5px solid #C3D2D0; }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .link { background: none; border: 0; color: #0E6F6A; text-decoration: underline; padding: 8px; align-self: center; font-size: 14.5px; }
+
+  .chip { align-self: flex-start; font-size: 13px; font-weight: 600; padding: 3px 12px; border-radius: 14px; }
+  .chip.live { background: #D6EFE0; color: #1B7F4B; }
+  .chip.warn { background: #F4E6C6; color: #8A5C0A; }
+  .chip.frozen { background: #DCE6F5; color: #2F5D9E; }
+  .chip.no { background: #E4ECEA; color: #5A6E6F; }
+
+  .faceid { width: 84px; height: 84px; border: 3px solid #0E6F6A; border-radius: 24px; align-self: center; position: relative; margin: 10px 0; }
+  .faceid::before, .faceid::after { content: ""; position: absolute; top: 28px; width: 6px; height: 14px; background: #0E6F6A; border-radius: 3px; }
+  .faceid::before { left: 24px; } .faceid::after { right: 24px; }
+  .spinner { width: 54px; height: 54px; border-radius: 50%; border: 5px solid #E4ECEA; border-top-color: #0E6F6A; animation: spin 1s linear infinite; align-self: center; margin: 24px 0 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; border-top-color: #0E6F6A; border-right-color: #0E6F6A; } }
+
+  .steps { list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 8px; }
+  .steps li { counter-increment: s; padding-left: 34px; position: relative; font-size: 14.5px; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: -1px; width: 24px; height: 24px; border-radius: 50%; background: #D4EBE8; color: #0E6F6A; font-weight: 700; display: grid; place-items: center; font-size: 13px; }
+
+  .detbox { border: 1.5px solid #C3D2D0; border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; flex-direction: column; gap: 6px; background: #F7FAF9; }
+  .detbox .kv { display: flex; justify-content: space-between; }
+  .detbox .kv b { font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+  .detbox .small { font-size: 12px; color: #5A6E6F; }
+  .frow { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #D3DEDC; padding-top: 12px; font-weight: 600; }
+  .switch { width: 52px; height: 30px; border-radius: 15px; border: 0; background: #C3D2D0; position: relative; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .switch[aria-checked="true"] { background: #2F5D9E; }
+  .switch[aria-checked="true"]::after { left: 25px; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: 18px; background: #17302F; color: #fff; padding: 10px 14px; border-radius: 10px; font-size: 14px; text-align: center; }
+
+  /* side panel */
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; }
+  .panel h3 { font-size: 15px; margin-bottom: 10px; }
+  .ctl { margin-bottom: 12px; }
+  .ctl-l { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; padding: 6px 12px; font-size: 13.5px; }
+  .seg button[aria-pressed="true"] { background: var(--sel); color: var(--bg); font-weight: 600; }
+  .restart { border: 1px solid var(--line); background: var(--bg); padding: 7px 14px; border-radius: 8px; font-size: 14px; }
+  .log { list-style: none; font-size: 13.5px; max-height: 250px; overflow-y: auto; font-variant-numeric: tabular-nums; }
+  .log li { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .log li span:last-child { color: var(--muted); }
+  .empty { color: var(--muted); font-size: 14px; }
+  .evals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .eval { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .eval b { font-size: 22px; display: block; }
+  .eval span { font-size: 12.5px; color: var(--muted); }
+  .eval.pass b { color: var(--ok); } .eval.fail b { color: var(--warn); }
+  .tip { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+const { useState, useEffect, useRef, useCallback, Fragment } = React;
+const h = React.createElement;
+
+// Fixed fake data only. Test card number, made-up name.
+const CARD = { last4: '4444', pan: '5555 5555 5555 4444', exp: '12/29', cvc: '123', name: 'NADINE BEISPIEL' };
+
+function Chip({ kind, children }) { return h('span', { className: 'chip ' + kind }, children); }
+function Btn({ kind = 'primary', onClick, disabled, children }) {
+  return h('button', { className: 'btn ' + kind, onClick, disabled }, children);
+}
+
+function CardArt({ frozen }) {
+  return h('div', { className: 'cardart' + (frozen ? ' frozen' : '') },
+    frozen ? h('span', { className: 'frozen-tag' }, 'Frozen') : null,
+    h('div', { className: 'brand' }, 'Riverty'),
+    h('div', { className: 'num' }, '•••• •••• •••• ' + CARD.last4),
+    h('div', { className: 'row' }, h('span', null, CARD.name), h('span', null, 'Mastercard')));
+}
+
+// Card details: hidden by default, revealed only after (mock) Face ID, auto-hide after 30 s.
+function Details({ frozen, faceIdRef, log }) {
+  const [revealed, setRevealed] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [err, setErr] = useState(false);
+  const [left, setLeft] = useState(30);
+
+  useEffect(() => {
+    if (!revealed) return;
+    const end = Date.now() + 30000;
+    setLeft(30);
+    const iv = setInterval(() => {
+      const s = Math.ceil((end - Date.now()) / 1000);
+      if (s <= 0) setRevealed(false); else setLeft(s);
+    }, 250);
+    return () => clearInterval(iv);
+  }, [revealed]);
+
+  useEffect(() => {
+    const f = () => { if (document.hidden) setRevealed(false); };
+    document.addEventListener('visibilitychange', f);
+    return () => document.removeEventListener('visibilitychange', f);
+  }, []);
+
+  useEffect(() => { if (frozen) { setRevealed(false); setAsking(false); } }, [frozen]);
+
+  const confirm = () => {
+    if (faceIdRef.current === 'fail') { setErr(true); return; }
+    setErr(false); setAsking(false); setRevealed(true);
+    log('details_revealed');
+  };
+
+  if (frozen) return h('p', { className: 'sub' }, 'Card details are hidden while the card is frozen.');
+  if (revealed) return h('div', { className: 'detbox' },
+    h('div', { className: 'kv' }, h('span', null, 'Card number'), h('b', null, CARD.pan)),
+    h('div', { className: 'kv' }, h('span', null, 'Expiry'), h('b', null, CARD.exp)),
+    h('div', { className: 'kv' }, h('span', null, 'CVC'), h('b', null, CARD.cvc)),
+    h('div', { className: 'small' }, 'Test data only. Hides in ' + left + ' s.'),
+    h('button', { className: 'link', onClick: () => setRevealed(false) }, 'Hide now'));
+  if (asking) return h('div', { className: 'detbox' },
+    h('div', null, 'Confirm it’s you to see your card details.'),
+    err ? h('div', { className: 'err' }, 'Face ID didn’t recognise you. Try again.') : null,
+    h(Btn, { onClick: confirm }, 'Confirm with Face ID'),
+    h('button', { className: 'link', onClick: () => { setAsking(false); setErr(false); } }, 'Cancel'));
+  return h(Btn, { kind: 'sec', onClick: () => setAsking(true) }, 'Show card details');
+}
+
+// SCREEN 1: entry point
+function Entry({ device, inWallet, notNow, onAdd, onNotNow, faceIdRef, log }) {
+  return h(Fragment, null,
+    h('div', null, h('h2', null, 'You’re approved'),
+      h('p', { className: 'sub' }, 'Pay with Riverty in any store, from your phone.')),
+    h(CardArt, {}),
+    device === 'android'
+      ? h('div', { className: 'stack' },
+          h(Chip, { kind: 'no' }, 'Google Pay coming soon'),
+          h('p', { className: 'sub' }, 'You can already use your card details for online checkout.'),
+          h(Details, { frozen: false, faceIdRef, log }))
+      : inWallet
+        ? h(Fragment, null, h(Chip, { kind: 'live' }, 'Already in Apple Pay'), h(Btn, { kind: 'apple', disabled: true }, 'In Apple Pay ✓'))
+        : h(Fragment, null,
+            notNow ? h(Chip, { kind: 'warn' }, 'Not in wallet yet') : null,
+            h(Btn, { kind: 'apple', onClick: onAdd }, '＋ Add to Apple Pay'),
+            !notNow ? h('button', { className: 'link', onClick: onNotNow }, 'Not now') : null));
+}
+
+// SCREEN 2: feature core (identity, provisioning, failure, lock)
+function Adding({ stage, fails, slow, reason, onConfirm, onBack, onRetry, onSupport, faceIdRef, log }) {
+  if (stage === 'identity') return h(Fragment, null,
+    h('div', null, h('h2', null, 'Confirm it’s you'),
+      h('p', { className: 'sub' }, 'We check it’s you before adding the card to Apple Pay.')),
+    h('div', { className: 'faceid', 'aria-hidden': 'true' }),
+    fails > 0 ? h('p', { className: 'err' }, 'Face ID didn’t recognise you. Try again (' + fails + ' of 3).') : null,
+    h(Btn, { onClick: onConfirm }, 'Confirm with Face ID'),
+    h('button', { className: 'link', onClick: onBack }, 'Back'));
+
+  if (stage === 'provisioning') return h(Fragment, null,
+    h('div', null, h('h2', null, 'Adding your card'),
+      h('p', { className: 'sub' }, 'Adding it to Apple Pay. This usually takes a few seconds.')),
+    h('div', { className: 'spinner', role: 'status', 'aria-label': 'Adding card' }),
+    slow ? h('div', { className: 'stack' },
+      h('p', { className: 'sub' }, 'This is taking longer than usual.'),
+      h(Btn, { kind: 'sec', onClick: onRetry }, 'Try again')) : null);
+
+  if (stage === 'failed') return h(Fragment, null,
+    h('div', null, h('h2', null, 'We couldn’t add your card yet'),
+      h('p', { className: 'sub' }, reason + ' Nothing was added to your wallet, and your card is still safe in the app.')),
+    h(Btn, { onClick: onRetry }, 'Try again'),
+    h(Btn, { kind: 'sec', onClick: onSupport }, 'Contact support'),
+    h('p', { className: 'sub' }, 'Need to pay online meanwhile? Your card details are available.'),
+    h(Details, { frozen: false, faceIdRef, log }));
+
+  return h(Fragment, null, // locked
+    h('div', null, h('h2', null, 'Paused for your security'),
+      h('p', { className: 'sub' }, 'We couldn’t confirm it’s you three times, so we stopped for now. The card was not added. Support can help you continue.')),
+    h(Btn, { onClick: onSupport }, 'Contact support'));
+}
+
+// SCREEN 3: success / confirmation
+function Success({ frozen, onFreeze, faceIdRef, log }) {
+  return h(Fragment, null,
+    h('div', null, h('h2', null, 'Your card is ready'),
+      h('p', { className: 'sub' }, 'No waiting for plastic. It works now.')),
+    h(Chip, { kind: frozen ? 'frozen' : 'live' }, frozen ? 'Frozen' : 'Live in Apple Pay'),
+    h(CardArt, { frozen }),
+    frozen
+      ? h('p', { className: 'sub' }, 'Payments are blocked until you unfreeze the card.')
+      : h('ol', { className: 'steps' },
+          h('li', null, 'Double-click the side button'),
+          h('li', null, 'Hold your iPhone near the terminal'),
+          h('li', null, 'Done')),
+    h(Details, { frozen, faceIdRef, log }),
+    h('div', { className: 'frow' },
+      h('span', null, frozen ? 'Unfreeze card' : 'Freeze card'),
+      h('button', { className: 'switch', role: 'switch', 'aria-checked': frozen, 'aria-label': 'Freeze card', onClick: onFreeze })));
+}
+
+function Flow({ device, inWallet, scenarioRef, faceIdRef, log }) {
+  const [stage, setStage] = useState('entry'); // entry | identity | provisioning | failed | locked | success
+  const [notNow, setNotNow] = useState(false);
+  const [fails, setFails] = useState(0);
+  const [slow, setSlow] = useState(false);
+  const [run, setRun] = useState(0);
+  const [reason, setReason] = useState('');
+  const [frozen, setFrozen] = useState(false);
+  const [toast, setToast] = useState('');
+  const busy = useRef(false);
+  const attemptNo = useRef(0);
+
+  useEffect(() => { log('approval_seen'); }, []);
+
+  useEffect(() => {
+    if (stage !== 'provisioning') return;
+    setSlow(false);
+    const mode = scenarioRef.current.prov;
+    const n = ++attemptNo.current;
+    let delay = 2500, ok = true, msg = '';
+    if (mode === 'slow' && n === 1) delay = 14000;
+    if (mode === 'fail') { ok = false; msg = 'Apple Pay didn’t accept the card just now.'; }
+    if (mode === 'offline') { ok = false; delay = 800; msg = 'You’re offline right now.'; }
+    const slowT = setTimeout(() => setSlow(true), 10000);
+    const doneT = setTimeout(() => {
+      if (ok) { log('provisioning_success'); setStage('success'); }
+      else { log('provisioning_failed'); setReason(msg); setStage('failed'); }
+    }, delay);
+    return () => { clearTimeout(slowT); clearTimeout(doneT); };
+  }, [stage, run]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(''), 2500);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const onAdd = () => {
+    if (busy.current) return; // ignore double taps
+    busy.current = true;
+    log('add_tapped');
+    setStage('identity');
+  };
+  const onNotNow = () => setNotNow(true);
+  const onBack = () => { busy.current = false; setNotNow(true); setStage('entry'); };
+  const onConfirm = () => {
+    if (stage !== 'identity') return;
+    if (faceIdRef.current === 'fail') {
+      const n = fails + 1;
+      setFails(n); log('sca_failed');
+      if (n >= 3) setStage('locked');
+      return;
+    }
+    log('sca_passed');
+    setStage('provisioning');
+  };
+  const onRetry = () => { setStage('provisioning'); setRun(r => r + 1); }; // no identity re-check
+  const onSupport = () => setToast('Support chat would open here (mock)');
+  const onFreeze = () => { log(frozen ? 'card_unfrozen' : 'card_frozen'); setFrozen(f => !f); };
+
+  let body;
+  if (stage === 'entry') body = h(Entry, { device, inWallet, notNow, onAdd, onNotNow, faceIdRef, log });
+  else if (stage === 'success') body = h(Success, { frozen, onFreeze, faceIdRef, log });
+  else body = h(Adding, { stage, fails, slow, reason, onConfirm, onBack, onRetry, onSupport, faceIdRef, log });
+
+  const label = stage === 'entry' ? 'Screen 1 of 3: entry point'
+    : stage === 'success' ? 'Screen 3 of 3: success' : 'Screen 2 of 3: feature core';
+
+  return h('div', null,
+    h('div', { className: 'phone' },
+      h('div', { className: 'status' }, h('span', null, '9:41'), h('span', null, '5G ▮▮▮')),
+      h('div', { className: 'screen' }, body),
+      toast ? h('div', { className: 'toast', role: 'status' }, toast) : null),
+    h('p', { className: 'cap' }, label));
+}
+
+function Seg({ label, value, options, onChange }) {
+  return h('div', { className: 'ctl' },
+    h('div', { className: 'ctl-l' }, label),
+    h('div', { className: 'seg', role: 'group', 'aria-label': label },
+      options.map(([v, t]) => h('button', { key: String(v), 'aria-pressed': value === v, onClick: () => onChange(v) }, t))));
+}
+
+function App() {
+  const [device, setDevice] = useState('iphone');
+  const [prov, setProv] = useState('ok');
+  const [faceId, setFaceId] = useState('ok');
+  const [inWallet, setInWallet] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
+  const [events, setEvents] = useState([]);
+
+  const scenarioRef = useRef({ prov: 'ok' });
+  scenarioRef.current = { prov };
+  const faceIdRef = useRef('ok');
+  faceIdRef.current = faceId;
+
+  // Event log holds event names and timestamps only. Never card data.
+  const log = useCallback((name) => {
+    const e = { name, t: Date.now() };
+    console.log('[event]', name, new Date(e.t).toISOString());
+    setEvents(ev => [...ev, e]);
+  }, []);
+
+  const restart = () => { setEvents([]); setResetKey(k => k + 1); };
+  const pick = (setter) => (v) => { setter(v); restart(); };
+
+  const t0 = events.find(e => e.name === 'approval_seen');
+  const done = events.find(e => e.name === 'provisioning_success');
+  const taps = events.filter(e => ['add_tapped', 'sca_passed', 'sca_failed'].includes(e.name)).length;
+  const secs = (t0 && done) ? (done.t - t0.t) / 1000 : null;
+
+  return h('div', { className: 'page' },
+    h('header', null,
+      h('h1', null, 'Riverty Wallet-Ready Instant Card: prototype'),
+      h('p', null, 'C1 flow for Nadine: approval to a card she can pay with in a shop. Everything is mocked: no Apple, Google or Paymentology calls, no backend, state lives in memory only and resets on reload.')),
+    h('div', { className: 'grid' },
+      h('div', null,
+        h(Flow, { key: resetKey + '-' + device + '-' + inWallet, device, inWallet, scenarioRef, faceIdRef, log })),
+      h('div', { className: 'side' },
+        h('div', { className: 'panel' },
+          h('h3', null, 'Test scenarios'),
+          h(Seg, { label: 'Device', value: device, options: [['iphone', 'iPhone'], ['android', 'Android']], onChange: pick(setDevice) }),
+          h(Seg, { label: 'Face ID', value: faceId, options: [['ok', 'Works'], ['fail', 'Fails']], onChange: setFaceId }),
+          h(Seg, { label: 'Adding to Apple Pay', value: prov, options: [['ok', 'Works'], ['fail', 'Fails'], ['slow', 'Slow (14 s)'], ['offline', 'Offline']], onChange: setProv }),
+          h(Seg, { label: 'Card already in Apple Pay', value: inWallet, options: [[false, 'No'], [true, 'Yes']], onChange: pick(setInWallet) }),
+          h('button', { className: 'restart', onClick: restart }, 'Restart prototype'),
+          h('p', { className: 'tip' }, 'Face ID and Adding settings apply to the next attempt, so you can switch them mid-flow. Failing Face ID three times locks the flow for the session until you restart.')),
+        h('div', { className: 'panel' },
+          h('h3', null, 'Eval check (from the PRD)'),
+          h('div', { className: 'evals' },
+            h('div', { className: 'eval' + (secs === null ? '' : taps <= 3 ? ' pass' : ' fail') },
+              h('b', null, secs === null ? '–' : String(taps)), h('span', null, 'Taps to card ready (target 3 or fewer)')),
+            h('div', { className: 'eval' + (secs === null ? '' : secs <= 45 ? ' pass' : ' fail') },
+              h('b', null, secs === null ? '–' : secs.toFixed(1) + ' s'), h('span', null, 'Time to card ready (target 45 s or less)')))),
+        h('div', { className: 'panel' },
+          h('h3', null, 'Event log (names and timestamps only)'),
+          events.length === 0
+            ? h('p', { className: 'empty' }, 'No events yet.')
+            : h('ol', { className: 'log' }, events.map((e, i) =>
+                h('li', { key: i }, h('span', null, e.name),
+                  h('span', null, '+' + ((e.t - events[0].t) / 1000).toFixed(1) + ' s'))))))));
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>
+</body>
+</html>
